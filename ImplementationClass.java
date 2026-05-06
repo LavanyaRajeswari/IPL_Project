@@ -9,7 +9,7 @@ public class ImplementationClass {
         final String FILE_PATH_MATCHES = "./archive/matches.csv";
         final String FILE_PATH_DELIVERIES = "./archive/deliveries.csv";
 
-        List<Match> Matches  = getMatches(FILE_PATH_MATCHES);
+        List<Match> Matches = getMatches(FILE_PATH_MATCHES);
         List<Delivery> Deliveries = getDeliveries(FILE_PATH_DELIVERIES);
 
         Map<Integer, Integer> MatchesPerYear = getMatchesPerYear(Matches);
@@ -51,7 +51,7 @@ public class ImplementationClass {
 
         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
             String line = br.readLine();
-            
+
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(",", -1);
 
@@ -148,13 +148,15 @@ public class ImplementationClass {
 
     static Map<String, Double> getTeamSuccessRate(List<Match> matches) {
         Map<String, Double> TeamSuccessRate = new HashMap<>();
-        Map<String, Integer> TeamWins = new HashMap<>(); 
-        Map<String, Integer> TeamMatches = new HashMap<>(); 
-        for(Match mc:matches) {
+        Map<String, Integer> TeamWins = new HashMap<>();
+        Map<String, Integer> TeamMatches = new HashMap<>();
+        for (Match mc : matches) {
             String team = mc.matchWinner;
-            if(!team.equals(""))TeamWins.put(team,TeamWins.getOrDefault(team, 0) + 1);
-            TeamMatches.put(mc.matchTeam1,TeamMatches.getOrDefault(mc.matchTeam1, 0) + 1);
-            TeamMatches.put(mc.matchTeam2,TeamMatches.getOrDefault(mc.matchTeam2, 0) + 1);
+            if (!team.equals("")) {
+                TeamWins.put(team, TeamWins.getOrDefault(team, 0) + 1);
+            }
+            TeamMatches.put(mc.matchTeam1, TeamMatches.getOrDefault(mc.matchTeam1, 0) + 1);
+            TeamMatches.put(mc.matchTeam2, TeamMatches.getOrDefault(mc.matchTeam2, 0) + 1);
         }
         TeamWins.forEach((Key, Value) -> {
             Double SuccessRate = (double) Math.round((((Value * 100.0) / 100.0) / ((TeamMatches.get(Key) * 100.0) / 100.0)) * 100);
