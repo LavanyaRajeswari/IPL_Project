@@ -9,18 +9,20 @@ public class ImplementationClass {
         final String FILE_PATH_MATCHES = "./archive/matches.csv";
         final String FILE_PATH_DELIVERIES = "./archive/deliveries.csv";
 
-        List<Match> Matches = getMatches(FILE_PATH_MATCHES);
+        List<Match> Matches  = getMatches(FILE_PATH_MATCHES);
         List<Delivery> Deliveries = getDeliveries(FILE_PATH_DELIVERIES);
 
         Map<Integer, Integer> MatchesPerYear = getMatchesPerYear(Matches);
         Map<String, Integer> MatchesWonByTeam = getMatchesWonTeams(Matches);
         Map<String, Integer> MatchesExtraRunsPerTeam = getExtraRunsPerTeam(Matches, Deliveries);
         Map<String, Double> MatchesTopEconomicalBowlers = getTopEconomicalBowlers2015(Matches, Deliveries);
+        Map<String, Double> MatchesTeamSuccessRate = getTeamSuccessRate(Matches);
 
         Display("MatchesPerYear", MatchesPerYear);
         Display("MatchesWonByTeam", MatchesWonByTeam);
         Display("MatchesExtraRunsPerTeam", MatchesExtraRunsPerTeam);
         Display("MatchesTopEconomicalBowlers", MatchesTopEconomicalBowlers);
+        Display("MatchesTeamSuccessRate", MatchesTeamSuccessRate);
 
     }
 
@@ -142,6 +144,24 @@ public class ImplementationClass {
                         LinkedHashMap::new
                 ));
         return TopEconomicalBowlers2015;
+    }
+
+    static Map<String, Double> getTeamSuccessRate(List<Match> matches) {
+        Map<String, Double> TeamSuccessRate = new HashMap<>();
+        Map<String, Integer> TeamWins = new HashMap<>(); 
+        Map<String, Integer> TeamMatches = new HashMap<>(); 
+        for(Match mc:matches) {
+            String team = mc.matchWinner;
+            if(!team.equals(""))TeamWins.put(team,TeamWins.getOrDefault(team, 0) + 1);
+            TeamMatches.put(mc.matchTeam1,TeamMatches.getOrDefault(mc.matchTeam1, 0) + 1);
+            TeamMatches.put(mc.matchTeam2,TeamMatches.getOrDefault(mc.matchTeam2, 0) + 1);
+        }
+        TeamWins.forEach((Key, Value) -> {
+            System.out.println(Value + " " + TeamMatches.get(Key));
+            Double SuccessRate = (double) Math.round((((Value * 100.0) / 100.0) / ((TeamMatches.get(Key) * 100.0) / 100.0)) * 100);
+            TeamSuccessRate.put(Key, SuccessRate);
+        });
+        return TeamSuccessRate;
     }
 
     static <K, V> void Display(String title, Map<K, V> map) {
