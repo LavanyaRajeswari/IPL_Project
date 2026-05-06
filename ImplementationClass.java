@@ -157,7 +157,6 @@ public class ImplementationClass {
             TeamMatches.put(mc.matchTeam2,TeamMatches.getOrDefault(mc.matchTeam2, 0) + 1);
         }
         TeamWins.forEach((Key, Value) -> {
-            System.out.println(Value + " " + TeamMatches.get(Key));
             Double SuccessRate = (double) Math.round((((Value * 100.0) / 100.0) / ((TeamMatches.get(Key) * 100.0) / 100.0)) * 100);
             TeamSuccessRate.put(Key, SuccessRate);
         });
