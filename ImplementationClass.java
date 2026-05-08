@@ -17,13 +17,13 @@ public class ImplementationClass {
         Map<String, Integer> MatchesExtraRunsPerTeam = getExtraRunsPerTeam(Matches, Deliveries);
         Map<String, Double> MatchesTopEconomicalBowlers = getTopEconomicalBowlers2015(Matches, Deliveries);
         Map<String, Double> MatchesTeamSuccessRate = getTeamSuccessRate(Matches);
+        Map<Integer, Map<String, Map<String, Integer>>> PlayerWithMostWickets = getPlayerWithMostWickets(Matches, Deliveries);
 
-        Display("MatchesPerYear", MatchesPerYear);
-        Display("MatchesWonByTeam", MatchesWonByTeam);
-        Display("MatchesExtraRunsPerTeam", MatchesExtraRunsPerTeam);
-        Display("MatchesTopEconomicalBowlers", MatchesTopEconomicalBowlers);
-        Display("MatchesTeamSuccessRate", MatchesTeamSuccessRate);
-
+        // Display("MatchesPerYear", MatchesPerYear);
+        // Display("MatchesWonByTeam", MatchesWonByTeam);
+        // Display("MatchesExtraRunsPerTeam", MatchesExtraRunsPerTeam);
+        // Display("MatchesTopEconomicalBowlers", MatchesTopEconomicalBowlers);
+        // Display("MatchesTeamSuccessRate", MatchesTeamSuccessRate);
     }
 
     static List<Match> getMatches(String path) throws IOException {
@@ -163,6 +163,61 @@ public class ImplementationClass {
             TeamSuccessRate.put(Key, SuccessRate);
         });
         return TeamSuccessRate;
+    }
+
+    static Map<Integer, Map<String, Map<String, Integer>>> getPlayerWithMostWickets(List<Match> matches, List<Delivery> deliveries) {
+        Map<Integer, Map<String, Map<String, Integer>>> playerWithMostWickets = new HashMap<>();
+        Map<Integer, Integer> matchSeasons = new HashMap<>();
+
+        for (Match mc : matches) {
+            matchSeasons.put(mc.matchId, mc.matchSeason);
+        }
+
+        for (Delivery d : deliveries) {
+            Integer year = matchSeasons.get(d.matchId);
+            String team = d.bowlingTeam;
+            String player = d.bowler;
+            Integer over = d.over;
+            String wicket = d.playerDismissed;
+
+            if (over > 15 && wicket != null && !wicket.isEmpty()) {
+                Map<String, Map<String, Integer>> teamMap = playerWithMostWickets.getOrDefault(year, new HashMap<>());
+                Map<String, Integer> wicketMap = teamMap.getOrDefault(team, new HashMap<>());
+                wicketMap.put(player, wicketMap.getOrDefault(player, 0) + 1);
+                teamMap.put(team, wicketMap);
+                playerWithMostWickets.put(year, teamMap);
+            }
+        }
+
+        Map<Integer, Map<String, Map.Entry<String, Integer>>> result
+                = playerWithMostWickets.entrySet()
+                        .stream()
+                        .collect(Collectors.toMap(
+                                Map.Entry::getKey,
+                                year -> year.getValue()
+                                        .entrySet()
+                                        .stream()
+                                        .collect(Collectors.toMap(
+                                                Map.Entry::getKey,
+                                                team -> team.getValue()
+                                                        .entrySet()
+                                                        .stream()
+                                                        .max(Map.Entry.comparingByValue())
+                                                        .orElse(null)
+                                        ))
+                        ));
+
+        for (Map.Entry<Integer, Map<String, Map.Entry<String, Integer>>> yearEntry : result.entrySet()) {
+            Integer year = yearEntry.getKey();
+            for (Map.Entry<String, Map.Entry<String, Integer>> teamEntry : yearEntry.getValue().entrySet()) {
+                String team = teamEntry.getKey();
+                Map.Entry<String, Integer> playerData = teamEntry.getValue();
+                if (playerData != null) {
+                    System.out.println(year + " " + team + " " + playerData.getKey() + " - " + playerData.getValue());
+                }
+            }
+        }
+        return playerWithMostWickets;
     }
 
     static <K, V> void Display(String title, Map<K, V> map) {
